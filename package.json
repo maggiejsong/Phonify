@@ -1,0 +1,29 @@
+{
+  "name": "iphone-mockup-frame-figma-plugin",
+  "version": "1.0.0",
+  "description": "A Figma plugin that adds iPhone mockup frames to selected frames",
+  "main": "code.js",
+  "scripts": {
+    "build": "node generate-assets.js",
+    "dev": "echo 'Load plugin in Figma desktop app'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "figma",
+    "plugin",
+    "mockup",
+    "iphone",
+    "mobile",
+    "frame",
+    "ui",
+    "design"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "figma": {
+    "id": "iphone-mockup-frame",
+    "name": "iPhone Mockup Frame"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
