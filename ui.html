@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>iPhone Mockup Frame</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .container {
+      max-width: 280px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      color: #1a1a1a;
+      text-align: center;
+    }
+    
+    .instruction {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #1565c0;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: #007acc;
+      box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+    }
+    
+    .phone-preview {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .phone-icon {
+      width: 60px;
+      height: 120px;
+      background: #333;
+      border-radius: 12px;
+      margin: 0 auto 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .phone-icon.iphone-14-pro::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 8px;
+      background: #000;
+      border-radius: 10px;
+    }
+    
+    .phone-icon.iphone-se::after {
+      content: '';
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 12px;
+      border: 1px solid #666;
+      border-radius: 50%;
+    }
+    
+    .phone-screen {
+      width: 40px;
+      height: 80px;
+      background: #f0f0f0;
+      border-radius: 6px;
+      margin: 0 auto;
+    }
+    
+    .phone-name {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    .phone-specs {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .primary-btn {
+      background: #007acc;
+      color: white;
+    }
+    
+    .primary-btn:hover {
+      background: #005a9e;
+    }
+    
+    .primary-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .secondary-btn {
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    
+    .secondary-btn:hover {
+      background: #e8e8e8;
+    }
+    
+    .message {
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 12px;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📱 iPhone Mockup Frame</h1>
+    
+    <div class="instruction">
+      Select a frame in Figma, choose an iPhone model below, and click "Create Mockup" to generate a mockup with your design inside an iPhone frame.
+    </div>
+    
+    <div id="message-container"></div>
+    
+    <div class="form-group">
+      <label for="phone-model">iPhone Model</label>
+      <select id="phone-model">
+        <option value="iphone-14-pro">iPhone 14 Pro (430×932)</option>
+        <option value="iphone-14">iPhone 14 (390×844)</option>
+        <option value="iphone-se">iPhone SE (375×667)</option>
+      </select>
+    </div>
+    
+    <div class="phone-preview">
+      <div class="phone-icon iphone-14-pro" id="phone-icon">
+        <div class="phone-screen"></div>
+      </div>
+      <div class="phone-name" id="phone-name">iPhone 14 Pro</div>
+      <div class="phone-specs" id="phone-specs">430×932 pixels</div>
+    </div>
+    
+    <div class="button-group">
+      <button class="primary-btn" id="create-btn">Create Mockup</button>
+      <button class="secondary-btn" id="close-btn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const phoneModels = {
+      'iphone-14-pro': {
+        name: 'iPhone 14 Pro',
+        specs: '430×932 pixels',
+        iconClass: 'iphone-14-pro'
+      },
+      'iphone-14': {
+        name: 'iPhone 14',
+        specs: '390×844 pixels',
+        iconClass: 'iphone-14'
+      },
+      'iphone-se': {
+        name: 'iPhone SE',
+        specs: '375×667 pixels',
+        iconClass: 'iphone-se'
+      }
+    };
+
+    const phoneSelect = document.getElementById('phone-model');
+    const phoneIcon = document.getElementById('phone-icon');
+    const phoneName = document.getElementById('phone-name');
+    const phoneSpecs = document.getElementById('phone-specs');
+    const createBtn = document.getElementById('create-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const messageContainer = document.getElementById('message-container');
+
+    function updatePhonePreview() {
+      const selectedModel = phoneSelect.value;
+      const model = phoneModels[selectedModel];
+      
+      phoneIcon.className = `phone-icon ${model.iconClass}`;
+      phoneName.textContent = model.name;
+      phoneSpecs.textContent = model.specs;
+    }
+
+    function showMessage(text, type = 'success') {
+      messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
+      setTimeout(() => {
+        messageContainer.innerHTML = '';
+      }, 3000);
+    }
+
+    phoneSelect.addEventListener('change', updatePhonePreview);
+
+    createBtn.addEventListener('click', () => {
+      const selectedModel = phoneSelect.value;
+      createBtn.disabled = true;
+      createBtn.textContent = 'Creating...';
+      
+      parent.postMessage({
+        pluginMessage: {
+          type: 'create-mockup',
+          model: selectedModel
+        }
+      }, '*');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      parent.postMessage({
+        pluginMessage: {
+          type: 'close-plugin'
+        }
+      }, '*');
+    });
+
+    // Listen for messages from the plugin
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      
+      if (msg.type === 'success') {
+        showMessage(msg.message, 'success');
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Mockup';
+      } else if (msg.type === 'error') {
+        showMessage(msg.message, 'error');
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Mockup';
+      }
+    };
+
+    // Initialize
+    updatePhonePreview();
+  </script>
+</body>
+</html>

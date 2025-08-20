@@ -1,0 +1,268 @@
+// Main plugin code
+figma.showUI(__html__, { width: 320, height: 400 });
+
+// iPhone mockup data with dimensions
+const IPHONE_MODELS = {
+  'iphone-14-pro': {
+    name: 'iPhone 14 Pro',
+    width: 430,
+    height: 932,
+    screenInsets: { top: 59, right: 24, bottom: 34, left: 24 }
+  },
+  'iphone-14': {
+    name: 'iPhone 14',
+    width: 390,
+    height: 844,
+    screenInsets: { top: 47, right: 24, bottom: 34, left: 24 }
+  },
+  'iphone-se': {
+    name: 'iPhone SE',
+    width: 375,
+    height: 667,
+    screenInsets: { top: 64, right: 24, bottom: 24, left: 24 }
+  }
+};
+
+// iPhone frame SVG data
+const IPHONE_FRAME_SVGS = {
+  'iphone-14-pro': `<svg width="430" height="932" viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="frameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#2c2c2c;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <rect width="430" height="932" rx="55" ry="55" fill="url(#frameGradient)" stroke="#333" stroke-width="3"/>
+    <rect x="24" y="59" width="382" height="839" rx="35" ry="35" fill="transparent"/>
+    <ellipse cx="215" cy="28" rx="63" ry="18.5" fill="#000"/>
+  </svg>`,
+  'iphone-14': `<svg width="390" height="844" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="frameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#2c2c2c;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <rect width="390" height="844" rx="47" ry="47" fill="url(#frameGradient)" stroke="#333" stroke-width="3"/>
+    <rect x="24" y="47" width="342" height="763" rx="27" ry="27" fill="transparent"/>
+    <path d="M 113 0 Q 113 30 154 30 L 236 30 Q 277 30 277 0 Z" fill="#000"/>
+  </svg>`,
+  'iphone-se': `<svg width="375" height="667" viewBox="0 0 375 667" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="frameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#2c2c2c;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <rect width="375" height="667" rx="20" ry="20" fill="url(#frameGradient)" stroke="#333" stroke-width="3"/>
+    <rect x="24" y="64" width="327" height="581" rx="5" ry="5" fill="transparent"/>
+    <circle cx="187.5" cy="638" r="25" fill="none" stroke="#666" stroke-width="2"/>
+    <circle cx="187.5" cy="638" r="17" fill="none" stroke="#999" stroke-width="1"/>
+  </svg>`
+};
+
+figma.ui.onmessage = async (msg) => {
+  if (msg.type === 'create-mockup') {
+    const selection = figma.currentPage.selection;
+    
+    if (selection.length !== 1) {
+      figma.ui.postMessage({ type: 'error', message: 'Please select exactly one frame' });
+      return;
+    }
+
+    const selectedNode = selection[0];
+    if (selectedNode.type !== 'FRAME') {
+      figma.ui.postMessage({ type: 'error', message: 'Please select a frame' });
+      return;
+    }
+
+    try {
+      await createiPhoneMockup(selectedNode, msg.model);
+      figma.ui.postMessage({ type: 'success', message: 'iPhone mockup created successfully!' });
+    } catch (error) {
+      figma.ui.postMessage({ type: 'error', message: `Error creating mockup: ${error.message}` });
+    }
+  }
+
+  if (msg.type === 'close-plugin') {
+    figma.closePlugin();
+  }
+};
+
+async function createiPhoneMockup(selectedFrame, modelKey) {
+  const model = IPHONE_MODELS[modelKey];
+  if (!model) {
+    throw new Error('Invalid iPhone model selected');
+  }
+
+  // Create a new frame for the mockup
+  const mockupFrame = figma.createFrame();
+  mockupFrame.name = `${selectedFrame.name} - ${model.name} Mockup`;
+  mockupFrame.resize(model.width, model.height);
+  
+  // Position the mockup frame next to the original
+  mockupFrame.x = selectedFrame.x + selectedFrame.width + 50;
+  mockupFrame.y = selectedFrame.y;
+  
+  // Set background color to match iPhone frame
+  mockupFrame.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+
+  // Clone the selected frame for the screen content
+  const screenContent = selectedFrame.clone();
+  
+  // Calculate scaling to fit within screen area
+  const screenWidth = model.width - model.screenInsets.left - model.screenInsets.right;
+  const screenHeight = model.height - model.screenInsets.top - model.screenInsets.bottom;
+  
+  const scaleX = screenWidth / selectedFrame.width;
+  const scaleY = screenHeight / selectedFrame.height;
+  const scale = Math.min(scaleX, scaleY);
+  
+  // Resize and position the screen content
+  screenContent.resize(selectedFrame.width * scale, selectedFrame.height * scale);
+  screenContent.x = model.screenInsets.left + (screenWidth - screenContent.width) / 2;
+  screenContent.y = model.screenInsets.top + (screenHeight - screenContent.height) / 2;
+  
+  // Add screen content to mockup frame
+  mockupFrame.appendChild(screenContent);
+  
+  // Create iPhone frame overlay
+  await createiPhoneFrameOverlay(mockupFrame, modelKey, model);
+  
+  // Add to current page
+  figma.currentPage.appendChild(mockupFrame);
+  
+  // Select the new mockup
+  figma.currentPage.selection = [mockupFrame];
+  figma.viewport.scrollAndZoomIntoView([mockupFrame]);
+}
+
+async function createiPhoneFrameOverlay(parentFrame, modelKey, model) {
+  try {
+    // Create SVG node from the frame SVG
+    const svgString = IPHONE_FRAME_SVGS[modelKey];
+    const svgNode = figma.createNodeFromSvg(svgString);
+    svgNode.name = `${model.name} Frame`;
+    svgNode.x = 0;
+    svgNode.y = 0;
+    
+    // Add frame to parent
+    parentFrame.appendChild(svgNode);
+    
+  } catch (error) {
+    console.error('Error creating iPhone frame overlay:', error);
+    // Fallback to simple rectangle-based frame
+    await createFallbackFrame(parentFrame, modelKey, model);
+  }
+}
+
+async function createFallbackFrame(parentFrame, modelKey, model) {
+  // Create outer frame
+  const outerFrame = figma.createRectangle();
+  outerFrame.name = 'iPhone Frame Border';
+  outerFrame.resize(model.width, model.height);
+  outerFrame.x = 0;
+  outerFrame.y = 0;
+  outerFrame.fills = [{ 
+    type: 'GRADIENT_LINEAR',
+    gradientTransform: [[1, 0, 0], [0, 1, 0]],
+    gradientStops: [
+      { position: 0, color: { r: 0.17, g: 0.17, b: 0.17 } },
+      { position: 1, color: { r: 0.1, g: 0.1, b: 0.1 } }
+    ]
+  }];
+  outerFrame.cornerRadius = modelKey === 'iphone-se' ? 20 : (modelKey === 'iphone-14-pro' ? 55 : 47);
+  outerFrame.strokes = [{ type: 'SOLID', color: { r: 0.2, g: 0.2, b: 0.2 } }];
+  outerFrame.strokeWeight = 3;
+  
+  // Create screen cutout
+  const screenCutout = figma.createRectangle();
+  screenCutout.name = 'Screen Area';
+  screenCutout.resize(
+    model.width - model.screenInsets.left - model.screenInsets.right,
+    model.height - model.screenInsets.top - model.screenInsets.bottom
+  );
+  screenCutout.x = model.screenInsets.left;
+  screenCutout.y = model.screenInsets.top;
+  screenCutout.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+  screenCutout.cornerRadius = modelKey === 'iphone-se' ? 5 : (modelKey === 'iphone-14-pro' ? 35 : 27);
+  
+  // Create boolean operation to cut out screen area
+  try {
+    const booleanNode = figma.createBooleanOperation();
+    booleanNode.name = `${model.name} Frame`;
+    booleanNode.booleanOperation = 'SUBTRACT';
+    booleanNode.appendChild(outerFrame);
+    booleanNode.appendChild(screenCutout);
+    parentFrame.appendChild(booleanNode);
+  } catch (boolError) {
+    // If boolean operations fail, just use stroke
+    outerFrame.fills = [];
+    outerFrame.strokeWeight = 12;
+    parentFrame.appendChild(outerFrame);
+  }
+  
+  // Add device-specific elements
+  if (modelKey === 'iphone-14-pro') {
+    await addDynamicIsland(parentFrame, model);
+  } else if (modelKey === 'iphone-14') {
+    await addNotch(parentFrame, model);
+  } else if (modelKey === 'iphone-se') {
+    await addHomeButton(parentFrame, model);
+  }
+}
+
+async function addDynamicIsland(parentFrame, model) {
+  const island = figma.createEllipse();
+  island.name = 'Dynamic Island';
+  island.resize(126, 37);
+  island.x = (model.width - 126) / 2;
+  island.y = 11;
+  island.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+  parentFrame.appendChild(island);
+}
+
+async function addNotch(parentFrame, model) {
+  // Create notch using vector paths
+  const notch = figma.createVector();
+  notch.name = 'Notch';
+  
+  const notchWidth = 164;
+  const notchHeight = 30;
+  const notchX = (model.width - notchWidth) / 2;
+  
+  // Create a rounded rectangle path for the notch
+  const path = `M ${notchX} 0 Q ${notchX} ${notchHeight} ${notchX + notchWidth/4} ${notchHeight} L ${notchX + 3*notchWidth/4} ${notchHeight} Q ${notchX + notchWidth} ${notchHeight} ${notchX + notchWidth} 0 Z`;
+  
+  notch.vectorPaths = [{
+    windingRule: 'NONZERO',
+    data: path
+  }];
+  
+  notch.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
+  parentFrame.appendChild(notch);
+}
+
+async function addHomeButton(parentFrame, model) {
+  const homeButton = figma.createEllipse();
+  homeButton.name = 'Home Button';
+  homeButton.resize(50, 50);
+  homeButton.x = (model.width - 50) / 2;
+  homeButton.y = model.height - 50 - 15;
+  homeButton.fills = [];
+  homeButton.strokes = [{ type: 'SOLID', color: { r: 0.4, g: 0.4, b: 0.4 } }];
+  homeButton.strokeWeight = 2;
+  
+  // Add inner circle
+  const innerCircle = figma.createEllipse();
+  innerCircle.name = 'Home Button Inner';
+  innerCircle.resize(34, 34);
+  innerCircle.x = (model.width - 34) / 2;
+  innerCircle.y = model.height - 34 - 23;
+  innerCircle.fills = [];
+  innerCircle.strokes = [{ type: 'SOLID', color: { r: 0.6, g: 0.6, b: 0.6 } }];
+  innerCircle.strokeWeight = 1;
+  
+  parentFrame.appendChild(homeButton);
+  parentFrame.appendChild(innerCircle);
+}
