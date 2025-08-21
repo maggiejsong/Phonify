@@ -28,6 +28,12 @@ try {
     execSync('node generate-assets.js', { stdio: 'inherit' });
   }
 
+  // Inline SVG assets into the code
+  if (fs.existsSync('inline-assets.js')) {
+    console.log('📦 Inlining SVG assets...');
+    execSync('node inline-assets.js', { stdio: 'inherit' });
+  }
+
   console.log('✅ Build completed successfully!');
   console.log('📁 Files generated:');
   console.log('   - code.js (main plugin file)');

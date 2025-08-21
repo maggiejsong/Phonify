@@ -27,7 +27,7 @@ interface PluginMessage {
 }
 type iPhoneModelKey = 'iphone-14-pro' | 'iphone-14' | 'iphone-se';
 declare const IPHONE_MODELS: iPhoneModels;
-declare const IPHONE_FRAME_SVGS: iPhoneFrameSVGs;
+declare function loadiPhoneFrameSVG(modelKey: iPhoneModelKey): Promise<string>;
 declare function handleCreateMockup(msg: PluginMessage): Promise<void>;
 interface ValidationResult {
     isValid: boolean;
@@ -59,10 +59,4 @@ declare function calculateScreenContentPosition(screenContent: SceneNode, model:
     y: number;
 };
 declare function createiPhoneFrameOverlay(parentFrame: FrameNode, modelKey: iPhoneModelKey, model: iPhoneModel): Promise<void>;
-declare function createFallbackFrame(parentFrame: FrameNode, modelKey: iPhoneModelKey, model: iPhoneModel): Promise<void>;
-declare function getCornerRadius(modelKey: iPhoneModelKey): number;
-declare function getScreenCornerRadius(modelKey: iPhoneModelKey): number;
-declare function addDynamicIsland(parentFrame: FrameNode, model: iPhoneModel): Promise<void>;
-declare function addNotch(parentFrame: FrameNode, model: iPhoneModel): Promise<void>;
-declare function addHomeButton(parentFrame: FrameNode, model: iPhoneModel): Promise<void>;
 //# sourceMappingURL=code.d.ts.map
