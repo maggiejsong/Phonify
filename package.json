@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "build:ts": "tsc",
-    "build:assets": "node generate-assets.js",
+
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "echo 'No tests specified'",
