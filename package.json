@@ -6,7 +6,6 @@
   "scripts": {
     "build": "node build.js",
     "build:ts": "tsc",
-
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "echo 'No tests specified'",
