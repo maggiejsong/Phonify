@@ -22,17 +22,11 @@ try {
   const compiledCode = fs.readFileSync('dist/code.js', 'utf8');
   fs.writeFileSync('code.js', compiledCode);
 
-  // Generate assets if the script exists
-  if (fs.existsSync('generate-assets.js')) {
-    console.log('🎨 Generating assets...');
-    execSync('node generate-assets.js', { stdio: 'inherit' });
-  }
+  // Skip asset generation - using custom user assets
+  console.log('🎨 Using custom user assets from assets/ folder...');
 
-  // Inline SVG assets into the code
-  if (fs.existsSync('inline-assets.js')) {
-    console.log('📦 Inlining SVG assets...');
-    execSync('node inline-assets.js', { stdio: 'inherit' });
-  }
+  // Manual asset management - no automatic inlining
+  console.log('📦 Using manually configured assets in code...');
 
   console.log('✅ Build completed successfully!');
   console.log('📁 Files generated:');
