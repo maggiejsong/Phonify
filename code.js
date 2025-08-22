@@ -1,33 +1,50 @@
 "use strict";
 // Main plugin code
 figma.showUI(__html__, { width: 320, height: 400 });
-// iPhone mockup data with dimensions
+
+// iPhone mockup data with dimensions (updated to match your GitHub SVG files)
 const IPHONE_MODELS = {
     'iphone-14-pro': {
         name: 'iPhone 14 Pro',
-        width: 430,
-        height: 932,
+        width: 403,
+        height: 875,
         screenInsets: { top: 59, right: 24, bottom: 34, left: 24 }
     },
     'iphone-14': {
         name: 'iPhone 14',
-        width: 390,
-        height: 844,
+        width: 393,
+        height: 853,
         screenInsets: { top: 47, right: 24, bottom: 34, left: 24 }
     },
     'iphone-se': {
         name: 'iPhone SE',
-        width: 375,
-        height: 667,
+        width: 412,
+        height: 917,
         screenInsets: { top: 64, right: 24, bottom: 58, left: 24 }
     }
 };
-// iPhone frame SVG data - using actual asset files with side buttons and better details
-const IPHONE_FRAME_SVGS = {
-    'iphone-14-pro': `<svg width="430" height="932" viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg"><rect width="430" height="932" rx="55" ry="55" fill="#1a1a1a" stroke="#333" stroke-width="2"/><rect x="24" y="59" width="382" height="839" rx="35" ry="35" fill="transparent"/><ellipse cx="215" cy="29.5" rx="63" ry="18.5" fill="#000"/><rect x="0" y="139.79999999999998" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="233" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="298.24" width="3" height="40" rx="1.5" fill="#333"/></svg>`,
-    'iphone-14': `<svg width="390" height="844" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg"><rect width="390" height="844" rx="47" ry="47" fill="#1a1a1a" stroke="#333" stroke-width="2"/><rect x="24" y="47" width="342" height="763" rx="27" ry="27" fill="transparent"/><path d="M 113 0 Q 113 30 154 30 L 236 30 Q 277 30 277 0 Z" fill="#000"/><rect x="0" y="126.6" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="211" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="270.08" width="3" height="40" rx="1.5" fill="#333"/></svg>`,
-    'iphone-se': `<svg width="375" height="667" viewBox="0 0 375 667" xmlns="http://www.w3.org/2000/svg"><rect width="375" height="667" rx="20" ry="20" fill="#1a1a1a" stroke="#333" stroke-width="2"/><rect x="24" y="64" width="327" height="545" rx="0" ry="0" fill="transparent"/><circle cx="187.5" cy="628" r="29" fill="none" stroke="#666" stroke-width="2"/><circle cx="187.5" cy="628" r="21" fill="none" stroke="#999" stroke-width="1"/><rect x="0" y="100.05" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="166.75" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="213.44" width="3" height="40" rx="1.5" fill="#333"/></svg>`
-};
+
+// Simplified SVG frames based on your GitHub designs (Figma-compatible)
+async function loadiPhoneFrameSVG(modelKey) {
+    const svgAssets = {
+        // iPhone 14 Pro - Simplified version of your GitHub design
+        'iphone-14-pro': '<svg width="403" height="875" viewBox="0 0 403 875" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="395" height="867" rx="62" fill="none" stroke="#515868" stroke-width="4"/><rect x="1" y="1" width="401" height="873" rx="65" fill="none" stroke="#303640" stroke-width="2"/><rect x="143" y="24" width="116" height="34" rx="17" fill="#000"/><rect x="0" y="140" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="233" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="298" width="3" height="40" rx="1.5" fill="#333"/><rect x="400" y="200" width="3" height="80" rx="1.5" fill="#333"/></svg>',
+        
+        // iPhone 14 - Simplified version of your GitHub design  
+        'iphone-14': '<svg width="393" height="853" viewBox="0 0 393 853" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="4" width="379" height="845" rx="60" fill="none" stroke="#3C404A" stroke-width="4"/><rect x="5" y="1" width="384" height="851" rx="63" fill="none" stroke="#282D36" stroke-width="2"/><rect x="140" y="25" width="112" height="33" rx="16" fill="#000"/><rect x="0" y="127" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="211" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="270" width="3" height="40" rx="1.5" fill="#333"/><rect x="390" y="180" width="3" height="80" rx="1.5" fill="#333"/></svg>',
+        
+        // iPhone SE - Simplified version of your GitHub design
+        'iphone-se': '<svg width="412" height="917" viewBox="0 0 412 917" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="401" height="909" rx="38" fill="none" stroke="#585858" stroke-width="2"/><rect x="9" y="9" width="392" height="899" rx="33" fill="none" stroke="#494949" stroke-width="1"/><circle cx="205" cy="38" r="9" fill="#090609"/><circle cx="205" cy="39" r="5" fill="#131423"/><rect x="0" y="140" width="3" height="97" rx="1.5" fill="#333"/><rect x="0" y="295" width="3" height="58" rx="1.5" fill="#333"/><rect x="409" y="180" width="3" height="80" rx="1.5" fill="#333"/></svg>'
+    };
+    
+    const svgContent = svgAssets[modelKey];
+    if (!svgContent) {
+        throw new Error(`No SVG asset found for model: ${modelKey}`);
+    }
+    
+    return svgContent;
+}
+
 figma.ui.onmessage = async (msg) => {
     try {
         switch (msg.type) {
@@ -53,6 +70,7 @@ figma.ui.onmessage = async (msg) => {
         });
     }
 };
+
 async function handleCreateMockup(msg) {
     // Validate selection
     const validationResult = validateSelection();
@@ -83,6 +101,7 @@ async function handleCreateMockup(msg) {
         });
     }
 }
+
 function validateSelection() {
     const selection = figma.currentPage.selection;
     if (selection.length === 0) {
@@ -116,9 +135,11 @@ function validateSelection() {
         selectedFrame: selectedNode
     };
 }
+
 function isValidiPhoneModel(model) {
     return ['iphone-14-pro', 'iphone-14', 'iphone-se'].includes(model);
 }
+
 async function createiPhoneMockup(selectedFrame, modelKey) {
     const model = IPHONE_MODELS[modelKey];
     if (!model) {
@@ -152,10 +173,12 @@ async function createiPhoneMockup(selectedFrame, modelKey) {
         throw new Error(`Failed to create ${model.name} mockup: ${error.message}`);
     }
 }
+
 function generateMockupName(originalName, modelName) {
     const timestamp = new Date().toISOString().slice(11, 19).replace(/:/g, '-');
     return `${originalName} - ${modelName} Mockup (${timestamp})`;
 }
+
 function calculateMockupPosition(selectedFrame) {
     const spacing = 50;
     return {
@@ -163,6 +186,7 @@ function calculateMockupPosition(selectedFrame) {
         y: selectedFrame.y
     };
 }
+
 async function prepareScreenContent(selectedFrame, model) {
     // Clone the selected frame for the screen content
     const screenContent = selectedFrame.clone();
@@ -176,40 +200,44 @@ async function prepareScreenContent(selectedFrame, model) {
     screenContent.y = position.y;
     return screenContent;
 }
+
 function calculateScreenDimensions(model) {
     return {
         width: model.width - model.screenInsets.left - model.screenInsets.right,
         height: model.height - model.screenInsets.top - model.screenInsets.bottom
     };
 }
+
 function calculateOptimalScale(frame, screenDimensions) {
     const scaleX = screenDimensions.width / frame.width;
     const scaleY = screenDimensions.height / frame.height;
     return Math.min(scaleX, scaleY, 1); // Don't scale up beyond 100%
 }
+
 function calculateScreenContentPosition(screenContent, model, screenDimensions) {
     return {
         x: model.screenInsets.left + (screenDimensions.width - screenContent.width) / 2,
         y: model.screenInsets.top + (screenDimensions.height - screenContent.height) / 2
     };
 }
+
 async function createiPhoneFrameOverlay(parentFrame, modelKey, model) {
     try {
-        // Create SVG node from the frame SVG (using actual asset files)
-        const svgString = IPHONE_FRAME_SVGS[modelKey];
+        // Load SVG content from GitHub repository assets
+        const svgString = await loadiPhoneFrameSVG(modelKey);
         const svgNode = figma.createNodeFromSvg(svgString);
         svgNode.name = `${model.name} Frame`;
         svgNode.x = 0;
         svgNode.y = 0;
         // Add frame to parent
         parentFrame.appendChild(svgNode);
-        console.log(`Successfully created ${model.name} frame with side buttons`);
+        console.log(`Successfully created ${model.name} frame using GitHub asset`);
     }
     catch (error) {
         console.error('Error creating iPhone frame overlay:', error);
         throw new Error(`Failed to create ${model.name} frame: ${error.message}`);
     }
 }
+
 // All device-specific elements (Dynamic Island, Notch, Home Button, Side buttons) 
-// are now included in the SVG assets, so no additional functions needed
-//# sourceMappingURL=code.js.map
+// are now included in the SVG assets from GitHub repository
