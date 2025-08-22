@@ -1,38 +1,187 @@
 "use strict";
-// Main plugin code
-figma.showUI(__html__, { width: 320, height: 400 });
-// iPhone mockup data with dimensions
+// Main plugin code - BIGGER INTERFACE for side-by-side layout
+figma.showUI(__html__, { width: 600, height: 400 });
+
+// Phone mockup data with dimensions (corrected iPhone 16 Pro dimensions)
 const IPHONE_MODELS = {
-    'iphone-14-pro': {
-        name: 'iPhone 14 Pro',
-        width: 430,
-        height: 932,
-        screenInsets: { top: 59, right: 24, bottom: 34, left: 24 }
+    'iphone-16-pro': {
+        name: 'iPhone 16 Pro',
+        width: 402,
+        height: 874,
+        screenInsets: { top: 59, right: 24, bottom: 34, left: 24 },
+        screenRadius: 35
     },
-    'iphone-14': {
-        name: 'iPhone 14',
-        width: 390,
-        height: 844,
-        screenInsets: { top: 47, right: 24, bottom: 34, left: 24 }
+    'iphone-16': {
+        name: 'iPhone 16',
+        width: 393,
+        height: 852,
+        screenInsets: { top: 47, right: 24, bottom: 34, left: 24 },
+        screenRadius: 30
     },
-    'iphone-se': {
-        name: 'iPhone SE',
-        width: 375,
-        height: 667,
-        screenInsets: { top: 64, right: 24, bottom: 58, left: 24 }
+    'android-compact': {
+        name: 'Android Compact',
+        width: 412,
+        height: 917,
+        screenInsets: { top: 64, right: 24, bottom: 58, left: 24 },
+        screenRadius: 8
+    },
+    'android-medium': {
+        name: 'Android Medium',
+        width: 700,
+        height: 840,
+        screenInsets: { top: 24, right: 26, bottom: 23, left: 23 },
+        screenRadius: 28
     }
 };
-// iPhone frame SVG data - using actual asset files with side buttons and better details
-const IPHONE_FRAME_SVGS = {
-    'iphone-14-pro': `<svg width="430" height="932" viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg"><rect width="430" height="932" rx="55" ry="55" fill="#1a1a1a" stroke="#333" stroke-width="2"/><rect x="24" y="59" width="382" height="839" rx="35" ry="35" fill="transparent"/><ellipse cx="215" cy="29.5" rx="63" ry="18.5" fill="#000"/><rect x="0" y="139.79999999999998" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="233" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="298.24" width="3" height="40" rx="1.5" fill="#333"/></svg>`,
-    'iphone-14': `<svg width="390" height="844" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg"><rect width="390" height="844" rx="47" ry="47" fill="#1a1a1a" stroke="#333" stroke-width="2"/><rect x="24" y="47" width="342" height="763" rx="27" ry="27" fill="transparent"/><path d="M 113 0 Q 113 30 154 30 L 236 30 Q 277 30 277 0 Z" fill="#000"/><rect x="0" y="126.6" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="211" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="270.08" width="3" height="40" rx="1.5" fill="#333"/></svg>`,
-    'iphone-se': `<svg width="375" height="667" viewBox="0 0 375 667" xmlns="http://www.w3.org/2000/svg"><rect width="375" height="667" rx="20" ry="20" fill="#1a1a1a" stroke="#333" stroke-width="2"/><rect x="24" y="64" width="327" height="545" rx="0" ry="0" fill="transparent"/><circle cx="187.5" cy="628" r="29" fill="none" stroke="#666" stroke-width="2"/><circle cx="187.5" cy="628" r="21" fill="none" stroke="#999" stroke-width="1"/><rect x="0" y="100.05" width="3" height="60" rx="1.5" fill="#333"/><rect x="0" y="166.75" width="3" height="40" rx="1.5" fill="#333"/><rect x="0" y="213.44" width="3" height="40" rx="1.5" fill="#333"/></svg>`
-};
+
+// Current selection state
+let currentSelection = null;
+let currentModel = 'iphone-16-pro';
+
+// Simplified SVG frames based on your GitHub designs (Figma-compatible)
+async function loadiPhoneFrameSVG(modelKey, isLandscape = false) {
+    const model = IPHONE_MODELS[modelKey];
+    const width = isLandscape ? model.height : model.width;
+    const height = isLandscape ? model.width : model.height;
+    
+    const svgAssets = {
+        // iPhone 16 Pro - Corrected dimensions 402×874
+        'iphone-16-pro': `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="${width-8}" height="${height-8}" rx="62" fill="none" stroke="#515868" stroke-width="4"/>
+            <rect x="1" y="1" width="${width-2}" height="${height-2}" rx="65" fill="none" stroke="#303640" stroke-width="2"/>
+            ${isLandscape ? 
+                `<rect x="24" y="143" width="34" height="116" rx="17" fill="#000"/>` : 
+                `<rect x="143" y="24" width="116" height="34" rx="17" fill="#000"/>`
+            }
+            ${isLandscape ? 
+                `<rect x="140" y="0" width="60" height="3" rx="1.5" fill="#333"/>
+                 <rect x="233" y="0" width="40" height="3" rx="1.5" fill="#333"/>
+                 <rect x="298" y="0" width="40" height="3" rx="1.5" fill="#333"/>
+                 <rect x="200" y="${height-3}" width="80" height="3" rx="1.5" fill="#333"/>` :
+                `<rect x="0" y="140" width="3" height="60" rx="1.5" fill="#333"/>
+                 <rect x="0" y="233" width="3" height="40" rx="1.5" fill="#333"/>
+                 <rect x="0" y="298" width="3" height="40" rx="1.5" fill="#333"/>
+                 <rect x="${width-3}" y="200" width="3" height="80" rx="1.5" fill="#333"/>`
+            }
+        </svg>`,
+        
+        // iPhone 16 - 393×852
+        'iphone-16': `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7" y="4" width="${width-14}" height="${height-8}" rx="60" fill="none" stroke="#3C404A" stroke-width="4"/>
+            <rect x="5" y="1" width="${width-10}" height="${height-2}" rx="63" fill="none" stroke="#282D36" stroke-width="2"/>
+            ${isLandscape ? 
+                `<rect x="25" y="140" width="33" height="112" rx="16" fill="#000"/>` : 
+                `<rect x="140" y="25" width="112" height="33" rx="16" fill="#000"/>`
+            }
+            ${isLandscape ? 
+                `<rect x="127" y="0" width="60" height="3" rx="1.5" fill="#333"/>
+                 <rect x="211" y="0" width="40" height="3" rx="1.5" fill="#333"/>
+                 <rect x="270" y="0" width="40" height="3" rx="1.5" fill="#333"/>
+                 <rect x="180" y="${height-3}" width="80" height="3" rx="1.5" fill="#333"/>` :
+                `<rect x="0" y="127" width="3" height="60" rx="1.5" fill="#333"/>
+                 <rect x="0" y="211" width="3" height="40" rx="1.5" fill="#333"/>
+                 <rect x="0" y="270" width="3" height="40" rx="1.5" fill="#333"/>
+                 <rect x="${width-3}" y="180" width="3" height="80" rx="1.5" fill="#333"/>`
+            }
+        </svg>`,
+        
+        // Android Compact - 412×917
+        'android-compact': `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="${width-8}" height="${height-8}" rx="38" fill="none" stroke="#585858" stroke-width="2"/>
+            <rect x="9" y="9" width="${width-18}" height="${height-18}" rx="33" fill="none" stroke="#494949" stroke-width="1"/>
+            ${isLandscape ? 
+                `<circle cx="38" cy="${height/2}" r="9" fill="#090609"/>
+                 <circle cx="39" cy="${height/2}" r="5" fill="#131423"/>` : 
+                `<circle cx="${width/2}" cy="38" r="9" fill="#090609"/>
+                 <circle cx="${width/2}" cy="39" r="5" fill="#131423"/>`
+            }
+            ${isLandscape ? 
+                `<rect x="140" y="0" width="97" height="3" rx="1.5" fill="#333"/>
+                 <rect x="295" y="0" width="58" height="3" rx="1.5" fill="#333"/>
+                 <rect x="180" y="${height-3}" width="80" height="3" rx="1.5" fill="#333"/>` :
+                `<rect x="0" y="140" width="3" height="97" rx="1.5" fill="#333"/>
+                 <rect x="0" y="295" width="3" height="58" rx="1.5" fill="#333"/>
+                 <rect x="${width-3}" y="180" width="3" height="80" rx="1.5" fill="#333"/>`
+            }
+        </svg>`,
+        
+        // Android Medium - 700×840
+        'android-medium': `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="${width-8}" height="${height-8}" rx="52" fill="none" stroke="#252525" stroke-width="4"/>
+            <rect x="8" y="8" width="${width-16}" height="${height-16}" rx="48" fill="none" stroke="#494949" stroke-width="2"/>
+            ${isLandscape ? 
+                `<circle cx="30" cy="${height/2}" r="12" fill="#1a1a1a"/>
+                 <circle cx="32" cy="${height/2}" r="8" fill="#2a2a2a"/>` : 
+                `<circle cx="${width/2}" cy="30" r="12" fill="#1a1a1a"/>
+                 <circle cx="${width/2}" cy="32" r="8" fill="#2a2a2a"/>`
+            }
+            ${isLandscape ? 
+                `<rect x="160" y="0" width="120" height="4" rx="2" fill="#333"/>
+                 <rect x="320" y="0" width="80" height="4" rx="2" fill="#333"/>
+                 <rect x="220" y="${height-4}" width="100" height="4" rx="2" fill="#333"/>` :
+                `<rect x="0" y="160" width="4" height="120" rx="2" fill="#333"/>
+                 <rect x="0" y="320" width="4" height="80" rx="2" fill="#333"/>
+                 <rect x="${width-4}" y="220" width="4" height="100" rx="2" fill="#333"/>`
+            }
+        </svg>`
+    };
+    
+    const svgContent = svgAssets[modelKey];
+    if (!svgContent) {
+        throw new Error(`No SVG asset found for model: ${modelKey}`);
+    }
+    
+    return svgContent;
+}
+
+// Listen for selection changes to update preview
+figma.on('selectionchange', () => {
+    updateSelectionPreview();
+});
+
+function updateSelectionPreview() {
+    const selection = figma.currentPage.selection;
+    
+    if (selection.length === 1 && selection[0].type === 'FRAME') {
+        const selectedFrame = selection[0];
+        currentSelection = selectedFrame;
+        
+        // Determine orientation
+        const isLandscape = selectedFrame.width > selectedFrame.height;
+        
+        // Send preview data to UI
+        figma.ui.postMessage({
+            type: 'selection-update',
+            hasValidSelection: true,
+            frameInfo: {
+                name: selectedFrame.name,
+                width: selectedFrame.width,
+                height: selectedFrame.height,
+                isLandscape: isLandscape
+            }
+        });
+    } else {
+        currentSelection = null;
+        figma.ui.postMessage({
+            type: 'selection-update',
+            hasValidSelection: false,
+            frameInfo: null
+        });
+    }
+}
+
 figma.ui.onmessage = async (msg) => {
     try {
         switch (msg.type) {
             case 'create-mockup':
                 await handleCreateMockup(msg);
+                break;
+            case 'model-changed':
+                currentModel = msg.model;
+                updateSelectionPreview(); // Refresh preview with new model
+                break;
+            case 'request-preview-update':
+                updateSelectionPreview(); // Manual refresh
                 break;
             case 'close-plugin':
                 figma.closePlugin();
@@ -53,6 +202,7 @@ figma.ui.onmessage = async (msg) => {
         });
     }
 };
+
 async function handleCreateMockup(msg) {
     // Validate selection
     const validationResult = validateSelection();
@@ -64,7 +214,7 @@ async function handleCreateMockup(msg) {
     if (!msg.model || !isValidiPhoneModel(msg.model)) {
         figma.ui.postMessage({
             type: 'error',
-            message: 'Invalid iPhone model selected. Please choose iPhone 14 Pro, iPhone 14, or iPhone SE.'
+            message: 'Invalid phone model selected. Please choose a valid device model.'
         });
         return;
     }
@@ -72,7 +222,7 @@ async function handleCreateMockup(msg) {
         await createiPhoneMockup(validationResult.selectedFrame, msg.model);
         figma.ui.postMessage({
             type: 'success',
-            message: `iPhone ${IPHONE_MODELS[msg.model].name} mockup created successfully!`
+            message: `${IPHONE_MODELS[msg.model].name} mockup created successfully!`
         });
     }
     catch (error) {
@@ -83,6 +233,7 @@ async function handleCreateMockup(msg) {
         });
     }
 }
+
 function validateSelection() {
     const selection = figma.currentPage.selection;
     if (selection.length === 0) {
@@ -116,46 +267,77 @@ function validateSelection() {
         selectedFrame: selectedNode
     };
 }
+
 function isValidiPhoneModel(model) {
-    return ['iphone-14-pro', 'iphone-14', 'iphone-se'].includes(model);
+    return ['iphone-16-pro', 'iphone-16', 'android-compact', 'android-medium'].includes(model);
 }
-async function createiPhoneMockup(selectedFrame, modelKey) {
-    const model = IPHONE_MODELS[modelKey];
-    if (!model) {
-        throw new Error(`Invalid iPhone model: ${modelKey}`);
+
+function detectOrientation(frame) {
+    return frame.width > frame.height ? 'landscape' : 'portrait';
+}
+
+function getOrientedDimensions(model, orientation) {
+    if (orientation === 'landscape') {
+        return {
+            width: model.height,
+            height: model.width,
+            screenInsets: {
+                top: model.screenInsets.left,
+                right: model.screenInsets.top,
+                bottom: model.screenInsets.right,
+                left: model.screenInsets.bottom
+            },
+            screenRadius: model.screenRadius
+        };
     }
-    console.log(`Creating ${model.name} mockup for frame: ${selectedFrame.name}`);
+    return model;
+}
+
+async function createiPhoneMockup(selectedFrame, modelKey) {
+    const baseModel = IPHONE_MODELS[modelKey];
+    if (!baseModel) {
+        throw new Error(`Invalid phone model: ${modelKey}`);
+    }
+    
+    // Detect orientation and adjust model accordingly
+    const orientation = detectOrientation(selectedFrame);
+    const model = getOrientedDimensions(baseModel, orientation);
+    const isLandscape = orientation === 'landscape';
+    
+    console.log(`Creating ${baseModel.name} mockup (${orientation}) for frame: ${selectedFrame.name}`);
     try {
         // Create a new frame for the mockup
         const mockupFrame = figma.createFrame();
-        mockupFrame.name = generateMockupName(selectedFrame.name, model.name);
+        mockupFrame.name = generateMockupName(selectedFrame.name, `${baseModel.name} ${orientation}`);
         mockupFrame.resize(model.width, model.height);
         // Position the mockup frame next to the original
         const position = calculateMockupPosition(selectedFrame);
         mockupFrame.x = position.x;
         mockupFrame.y = position.y;
-        // Set background color to match iPhone frame
-        mockupFrame.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }];
-        // Clone and prepare the screen content
+        // Set transparent background - no fill
+        mockupFrame.fills = [];
+        // Clone and prepare the screen content (KEEPS ORIGINAL SIZE + ROUNDED CORNERS)
         const screenContent = await prepareScreenContent(selectedFrame, model);
         mockupFrame.appendChild(screenContent);
-        // Create iPhone frame overlay
-        await createiPhoneFrameOverlay(mockupFrame, modelKey, model);
+        // Create phone frame overlay
+        await createiPhoneFrameOverlay(mockupFrame, modelKey, model, isLandscape);
         // Add to current page and select
         figma.currentPage.appendChild(mockupFrame);
         figma.currentPage.selection = [mockupFrame];
         figma.viewport.scrollAndZoomIntoView([mockupFrame]);
-        console.log(`Successfully created ${model.name} mockup`);
+        console.log(`Successfully created ${baseModel.name} ${orientation} mockup`);
     }
     catch (error) {
-        console.error(`Failed to create ${model.name} mockup:`, error);
-        throw new Error(`Failed to create ${model.name} mockup: ${error.message}`);
+        console.error(`Failed to create ${baseModel.name} mockup:`, error);
+        throw new Error(`Failed to create ${baseModel.name} mockup: ${error.message}`);
     }
 }
+
 function generateMockupName(originalName, modelName) {
     const timestamp = new Date().toISOString().slice(11, 19).replace(/:/g, '-');
     return `${originalName} - ${modelName} Mockup (${timestamp})`;
 }
+
 function calculateMockupPosition(selectedFrame) {
     const spacing = 50;
     return {
@@ -163,53 +345,62 @@ function calculateMockupPosition(selectedFrame) {
         y: selectedFrame.y
     };
 }
+
 async function prepareScreenContent(selectedFrame, model) {
     // Clone the selected frame for the screen content
     const screenContent = selectedFrame.clone();
-    // Calculate scaling to fit within screen area
+    
+    // Add rounded corners to match phone screen shape
+    screenContent.cornerRadius = model.screenRadius || 35;
+    
+    // Position the screen content centered in the screen area (keeps original dimensions)
     const screenDimensions = calculateScreenDimensions(model);
-    const scale = calculateOptimalScale(selectedFrame, screenDimensions);
-    // Resize and position the screen content
-    screenContent.resize(selectedFrame.width * scale, selectedFrame.height * scale);
     const position = calculateScreenContentPosition(screenContent, model, screenDimensions);
     screenContent.x = position.x;
     screenContent.y = position.y;
     return screenContent;
 }
+
 function calculateScreenDimensions(model) {
     return {
         width: model.width - model.screenInsets.left - model.screenInsets.right,
         height: model.height - model.screenInsets.top - model.screenInsets.bottom
     };
 }
+
 function calculateOptimalScale(frame, screenDimensions) {
     const scaleX = screenDimensions.width / frame.width;
     const scaleY = screenDimensions.height / frame.height;
     return Math.min(scaleX, scaleY, 1); // Don't scale up beyond 100%
 }
+
 function calculateScreenContentPosition(screenContent, model, screenDimensions) {
     return {
         x: model.screenInsets.left + (screenDimensions.width - screenContent.width) / 2,
         y: model.screenInsets.top + (screenDimensions.height - screenContent.height) / 2
     };
 }
-async function createiPhoneFrameOverlay(parentFrame, modelKey, model) {
+
+async function createiPhoneFrameOverlay(parentFrame, modelKey, model, isLandscape = false) {
     try {
-        // Create SVG node from the frame SVG (using actual asset files)
-        const svgString = IPHONE_FRAME_SVGS[modelKey];
+        // Load SVG content with orientation support
+        const svgString = await loadiPhoneFrameSVG(modelKey, isLandscape);
         const svgNode = figma.createNodeFromSvg(svgString);
-        svgNode.name = `${model.name} Frame`;
+        svgNode.name = `${IPHONE_MODELS[modelKey].name} Frame`;
         svgNode.x = 0;
         svgNode.y = 0;
         // Add frame to parent
         parentFrame.appendChild(svgNode);
-        console.log(`Successfully created ${model.name} frame with side buttons`);
+        console.log(`Successfully created ${IPHONE_MODELS[modelKey].name} frame (${isLandscape ? 'landscape' : 'portrait'})`);
     }
     catch (error) {
-        console.error('Error creating iPhone frame overlay:', error);
-        throw new Error(`Failed to create ${model.name} frame: ${error.message}`);
+        console.error('Error creating phone frame overlay:', error);
+        throw new Error(`Failed to create ${IPHONE_MODELS[modelKey].name} frame: ${error.message}`);
     }
 }
+
+// Initialize selection tracking
+updateSelectionPreview();
+
 // All device-specific elements (Dynamic Island, Notch, Home Button, Side buttons) 
-// are now included in the SVG assets, so no additional functions needed
-//# sourceMappingURL=code.js.map
+// are now included in the SVG assets with orientation support

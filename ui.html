@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>iPhone Mockup Frame</title>
+  <title>Phone Mockup Frame</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,23 +11,36 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       background: #f8f9fa;
       font-size: 14px;
       line-height: 1.4;
     }
     
-    .container {
-      max-width: 280px;
+    .main-container {
+      display: flex;
+      gap: 20px;
+      max-width: 580px;
       margin: 0 auto;
+    }
+    
+    .left-panel {
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .right-panel {
+      flex: 1;
+      min-width: 280px;
     }
     
     h1 {
       font-size: 18px;
       font-weight: 600;
-      margin: 0 0 20px 0;
+      margin: 0 0 16px 0;
       color: #1a1a1a;
       text-align: center;
+      grid-column: 1 / -1;
     }
     
     .instruction {
@@ -35,9 +48,31 @@
       border: 1px solid #bbdefb;
       border-radius: 8px;
       padding: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       font-size: 12px;
       color: #1565c0;
+    }
+    
+    .selection-status {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .selection-status.valid {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+    
+    .selection-status.invalid {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
     }
     
     .form-group {
@@ -67,74 +102,238 @@
       box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
     }
     
-    .phone-preview {
+    .preview-container {
       background: white;
       border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      padding: 20px;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .preview-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 16px;
       text-align: center;
     }
     
-    .phone-icon {
-      width: 60px;
-      height: 120px;
-      background: #333;
-      border-radius: 12px;
-      margin: 0 auto 12px;
+    .preview-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      border-radius: 8px;
+      border: 2px dashed #ddd;
       position: relative;
+      overflow: hidden;
+      min-height: 180px;
+    }
+    
+    .preview-phone {
+      position: relative;
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
-    .phone-icon.iphone-14-pro::before {
-      content: '';
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 24px;
-      height: 8px;
-      background: #000;
-      border-radius: 10px;
+    .phone-frame {
+      background: #333;
+      border-radius: 8px;
+      position: relative;
+      border: 2px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
-    .phone-icon.iphone-se::after {
-      content: '';
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 12px;
-      height: 12px;
-      border: 1px solid #666;
-      border-radius: 50%;
+    .phone-frame.portrait {
+      width: 80px;
+      height: 160px;
+    }
+    
+    .phone-frame.landscape {
+      width: 160px;
+      height: 80px;
+    }
+    
+    .phone-frame.android-medium.portrait {
+      width: 70px;
+      height: 84px;
+      background: #252525;
+      border-color: #494949;
+    }
+    
+    .phone-frame.android-medium.landscape {
+      width: 84px;
+      height: 70px;
+      background: #252525;
+      border-color: #494949;
     }
     
     .phone-screen {
-      width: 40px;
-      height: 80px;
-      background: #f0f0f0;
+      background: #007acc;
+      border-radius: 4px;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .phone-screen.portrait {
+      width: 60px;
+      height: 120px;
+    }
+    
+    .phone-screen.landscape {
+      width: 120px;
+      height: 60px;
+    }
+    
+    .phone-screen.android-medium.portrait {
+      width: 56px;
+      height: 67px;
       border-radius: 6px;
-      margin: 0 auto;
     }
     
-    .phone-name {
-      font-size: 12px;
-      color: #666;
-      margin-top: 8px;
+    .phone-screen.android-medium.landscape {
+      width: 67px;
+      height: 56px;
+      border-radius: 6px;
     }
     
-    .phone-specs {
+    .dynamic-island {
+      position: absolute;
+      background: #000;
+      border-radius: 8px;
+    }
+    
+    .dynamic-island.portrait {
+      width: 24px;
+      height: 6px;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .dynamic-island.landscape {
+      width: 6px;
+      height: 24px;
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .notch {
+      position: absolute;
+      background: #000;
+      border-radius: 6px;
+    }
+    
+    .notch.portrait {
+      width: 20px;
+      height: 4px;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .notch.landscape {
+      width: 4px;
+      height: 20px;
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .home-button {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border: 1px solid #666;
+      border-radius: 50%;
+      background: none;
+    }
+    
+    .home-button.portrait {
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .home-button.landscape {
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .camera-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #1a1a1a;
+      border-radius: 50%;
+    }
+    
+    .camera-dot.portrait {
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .camera-dot.landscape {
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .preview-info {
+      margin-top: 12px;
+      text-align: center;
       font-size: 11px;
+      color: #666;
+    }
+    
+    .frame-name {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    
+    .orientation-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background: #007acc;
+      color: white;
+      border-radius: 4px;
+      font-size: 10px;
+      margin-left: 4px;
+    }
+    
+    .no-selection {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       color: #999;
-      margin-top: 4px;
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    .no-selection-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
     }
     
     .button-group {
       display: flex;
       gap: 10px;
+      margin-top: 20px;
     }
     
     button {
@@ -153,7 +352,7 @@
       color: white;
     }
     
-    .primary-btn:hover {
+    .primary-btn:hover:not(:disabled) {
       background: #005a9e;
     }
     
@@ -197,72 +396,188 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📱 iPhone Mockup Frame</h1>
-    
-    <div class="instruction">
-      Select a frame in Figma, choose an iPhone model below, and click "Create Mockup" to generate a mockup with your design inside an iPhone frame.
-    </div>
-    
-    <div id="message-container"></div>
-    
-    <div class="form-group">
-      <label for="phone-model">iPhone Model</label>
-      <select id="phone-model">
-        <option value="iphone-14-pro">iPhone 14 Pro (430×932)</option>
-        <option value="iphone-14">iPhone 14 (390×844)</option>
-        <option value="iphone-se">iPhone SE (375×667)</option>
-      </select>
-    </div>
-    
-    <div class="phone-preview">
-      <div class="phone-icon iphone-14-pro" id="phone-icon">
-        <div class="phone-screen"></div>
+  <div class="main-container">
+    <!-- Left Panel: Controls -->
+    <div class="left-panel">
+      <h1>📱 Phone Mockup</h1>
+      
+      <div class="instruction">
+        Select a frame in Figma to see a live preview. The mockup automatically adjusts for vertical or horizontal frames.
       </div>
-      <div class="phone-name" id="phone-name">iPhone 14 Pro</div>
-      <div class="phone-specs" id="phone-specs">430×932 pixels</div>
+      
+      <div id="message-container"></div>
+      
+      <div id="selection-status" class="selection-status invalid">
+        No frame selected. Please select a frame in Figma to continue.
+      </div>
+      
+      <div class="form-group">
+        <label for="phone-model">Phone Model</label>
+        <select id="phone-model">
+          <option value="iphone-16-pro">iPhone 16 Pro (402×874)</option>
+          <option value="iphone-16">iPhone 16 (393×852)</option>
+          <option value="android-compact">Android Compact (412×917)</option>
+          <option value="android-medium">Android Medium (700×840)</option>
+        </select>
+      </div>
+      
+      <div class="button-group">
+        <button class="primary-btn" id="create-btn" disabled>Create Mockup</button>
+        <button class="secondary-btn" id="close-btn">Close</button>
+      </div>
     </div>
     
-    <div class="button-group">
-      <button class="primary-btn" id="create-btn">Create Mockup</button>
-      <button class="secondary-btn" id="close-btn">Close</button>
+    <!-- Right Panel: Live Preview -->
+    <div class="right-panel">
+      <div class="preview-container">
+        <div class="preview-title">Live Preview</div>
+        <div class="preview-area" id="preview-area">
+          <div class="no-selection" id="no-selection">
+            <div class="no-selection-icon">📱</div>
+            <div>Select a frame to see preview</div>
+          </div>
+          
+          <div class="preview-phone hidden" id="preview-phone">
+            <div class="phone-frame portrait" id="phone-frame">
+              <div class="phone-screen portrait" id="phone-screen"></div>
+              <div class="dynamic-island portrait hidden" id="dynamic-island"></div>
+              <div class="notch portrait hidden" id="notch"></div>
+              <div class="home-button portrait hidden" id="home-button"></div>
+              <div class="camera-dot portrait hidden" id="camera-dot"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="preview-info">
+          <div class="frame-name" id="frame-name">-</div>
+          <div id="frame-specs">
+            <span id="frame-dimensions">-</span>
+            <span class="orientation-badge" id="orientation-badge">-</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const phoneModels = {
-      'iphone-14-pro': {
-        name: 'iPhone 14 Pro',
-        specs: '430×932 pixels',
-        iconClass: 'iphone-14-pro'
+      'iphone-16-pro': {
+        name: 'iPhone 16 Pro',
+        specs: '402×874 pixels',
+        iconClass: 'iphone-16-pro',
+        hasIsland: true
       },
-      'iphone-14': {
-        name: 'iPhone 14',
-        specs: '390×844 pixels',
-        iconClass: 'iphone-14'
+      'iphone-16': {
+        name: 'iPhone 16',
+        specs: '393×852 pixels', 
+        iconClass: 'iphone-16',
+        hasNotch: true
       },
-      'iphone-se': {
-        name: 'iPhone SE',
-        specs: '375×667 pixels',
-        iconClass: 'iphone-se'
+      'android-compact': {
+        name: 'Android Compact',
+        specs: '412×917 pixels',
+        iconClass: 'android-compact',
+        hasHomeButton: true
+      },
+      'android-medium': {
+        name: 'Android Medium',
+        specs: '700×840 pixels',
+        iconClass: 'android-medium',
+        hasCameraDot: true
       }
     };
 
     const phoneSelect = document.getElementById('phone-model');
-    const phoneIcon = document.getElementById('phone-icon');
-    const phoneName = document.getElementById('phone-name');
-    const phoneSpecs = document.getElementById('phone-specs');
     const createBtn = document.getElementById('create-btn');
     const closeBtn = document.getElementById('close-btn');
     const messageContainer = document.getElementById('message-container');
+    const selectionStatus = document.getElementById('selection-status');
+    const frameNameEl = document.getElementById('frame-name');
+    const frameDimensions = document.getElementById('frame-dimensions');
+    const orientationBadge = document.getElementById('orientation-badge');
+    const previewArea = document.getElementById('preview-area');
+    const noSelection = document.getElementById('no-selection');
+    const previewPhone = document.getElementById('preview-phone');
+    const phoneFrame = document.getElementById('phone-frame');
+    const phoneScreen = document.getElementById('phone-screen');
+    const dynamicIsland = document.getElementById('dynamic-island');
+    const notch = document.getElementById('notch');
+    const homeButton = document.getElementById('home-button');
+    const cameraDot = document.getElementById('camera-dot');
+
+    let currentFrameInfo = null;
 
     function updatePhonePreview() {
       const selectedModel = phoneSelect.value;
       const model = phoneModels[selectedModel];
       
-      phoneIcon.className = `phone-icon ${model.iconClass}`;
-      phoneName.textContent = model.name;
-      phoneSpecs.textContent = model.specs;
+      // Update preview with current frame orientation
+      updatePreviewDisplay(selectedModel);
+      
+      // Notify plugin of model change
+      parent.postMessage({
+        pluginMessage: {
+          type: 'model-changed',
+          model: selectedModel
+        }
+      }, '*');
+    }
+
+    function updatePreviewDisplay(selectedModel) {
+      const model = phoneModels[selectedModel];
+      
+      if (!currentFrameInfo) {
+        // No frame selected
+        noSelection.classList.remove('hidden');
+        previewPhone.classList.add('hidden');
+        return;
+      }
+      
+      // Show preview
+      noSelection.classList.add('hidden');
+      previewPhone.classList.remove('hidden');
+      
+      const isLandscape = currentFrameInfo.isLandscape;
+      const orientation = isLandscape ? 'landscape' : 'portrait';
+      
+      // Update phone frame orientation and style
+      phoneFrame.className = `phone-frame ${orientation} ${model.iconClass}`;
+      phoneScreen.className = `phone-screen ${orientation} ${model.iconClass}`;
+      
+      // Update device-specific elements
+      dynamicIsland.className = `dynamic-island ${orientation} ${model.hasIsland ? '' : 'hidden'}`;
+      notch.className = `notch ${orientation} ${model.hasNotch ? '' : 'hidden'}`;
+      homeButton.className = `home-button ${orientation} ${model.hasHomeButton ? '' : 'hidden'}`;
+      cameraDot.className = `camera-dot ${orientation} ${model.hasCameraDot ? '' : 'hidden'}`;
+      
+      // Update info
+      frameNameEl.textContent = currentFrameInfo.name;
+      frameDimensions.textContent = `${currentFrameInfo.width}×${currentFrameInfo.height}`;
+      orientationBadge.textContent = isLandscape ? 'Landscape' : 'Portrait';
+    }
+
+    function updateSelectionDisplay(hasValidSelection, frameInfo) {
+      if (hasValidSelection && frameInfo) {
+        // Valid selection
+        selectionStatus.className = 'selection-status valid';
+        selectionStatus.innerHTML = `✓ <strong>${frameInfo.name}</strong> selected<br><small>${frameInfo.width}×${frameInfo.height} pixels</small>`;
+        
+        currentFrameInfo = frameInfo;
+        updatePreviewDisplay(phoneSelect.value);
+        
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Mockup';
+      } else {
+        // No valid selection
+        selectionStatus.className = 'selection-status invalid';
+        selectionStatus.textContent = 'No frame selected. Please select a frame in Figma.';
+        
+        currentFrameInfo = null;
+        updatePreviewDisplay(phoneSelect.value);
+        
+        createBtn.disabled = true;
+        createBtn.textContent = 'Select a Frame First';
+      }
     }
 
     function showMessage(text, type = 'success') {
@@ -275,6 +590,11 @@
     phoneSelect.addEventListener('change', updatePhonePreview);
 
     createBtn.addEventListener('click', () => {
+      if (!currentFrameInfo) {
+        showMessage('Please select a frame first', 'error');
+        return;
+      }
+      
       const selectedModel = phoneSelect.value;
       createBtn.disabled = true;
       createBtn.textContent = 'Creating...';
@@ -307,11 +627,20 @@
         showMessage(msg.message, 'error');
         createBtn.disabled = false;
         createBtn.textContent = 'Create Mockup';
+      } else if (msg.type === 'selection-update') {
+        updateSelectionDisplay(msg.hasValidSelection, msg.frameInfo);
       }
     };
 
     // Initialize
     updatePhonePreview();
+    
+    // Request initial selection update
+    parent.postMessage({
+      pluginMessage: {
+        type: 'request-preview-update'
+      }
+    }, '*');
   </script>
 </body>
 </html>

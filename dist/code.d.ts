@@ -4,30 +4,32 @@ interface ScreenInsets {
     bottom: number;
     left: number;
 }
-interface iPhoneModel {
+interface DeviceModel {
     name: string;
     width: number;
     height: number;
     screenInsets: ScreenInsets;
 }
-interface iPhoneModels {
-    'iphone-14-pro': iPhoneModel;
-    'iphone-14': iPhoneModel;
-    'iphone-se': iPhoneModel;
+interface DeviceModels {
+    'iphone-14-pro': DeviceModel;
+    'iphone-14': DeviceModel;
+    'iphone-se': DeviceModel;
+    'android-medium': DeviceModel;
 }
-interface iPhoneFrameSVGs {
+interface DeviceFrameSVGs {
     'iphone-14-pro': string;
     'iphone-14': string;
     'iphone-se': string;
+    'android-medium': string;
 }
 interface PluginMessage {
     type: string;
     model?: string;
     message?: string;
 }
-type iPhoneModelKey = 'iphone-14-pro' | 'iphone-14' | 'iphone-se';
-declare const IPHONE_MODELS: iPhoneModels;
-declare const IPHONE_FRAME_SVGS: iPhoneFrameSVGs;
+type DeviceModelKey = 'iphone-14-pro' | 'iphone-14' | 'iphone-se' | 'android-medium';
+declare const DEVICE_MODELS: DeviceModels;
+declare const DEVICE_FRAME_SVGS: DeviceFrameSVGs;
 declare function handleCreateMockup(msg: PluginMessage): Promise<void>;
 interface ValidationResult {
     isValid: boolean;
@@ -35,15 +37,15 @@ interface ValidationResult {
     selectedFrame?: FrameNode;
 }
 declare function validateSelection(): ValidationResult;
-declare function isValidiPhoneModel(model: string): model is iPhoneModelKey;
-declare function createiPhoneMockup(selectedFrame: FrameNode, modelKey: iPhoneModelKey): Promise<void>;
+declare function isValidDeviceModel(model: string): model is DeviceModelKey;
+declare function createDeviceMockup(selectedFrame: FrameNode, modelKey: DeviceModelKey): Promise<void>;
 declare function generateMockupName(originalName: string, modelName: string): string;
 declare function calculateMockupPosition(selectedFrame: FrameNode): {
     x: number;
     y: number;
 };
-declare function prepareScreenContent(selectedFrame: FrameNode, model: iPhoneModel): Promise<SceneNode>;
-declare function calculateScreenDimensions(model: iPhoneModel): {
+declare function prepareScreenContent(selectedFrame: FrameNode, model: DeviceModel): Promise<SceneNode>;
+declare function calculateScreenDimensions(model: DeviceModel): {
     width: number;
     height: number;
 };
@@ -51,18 +53,12 @@ declare function calculateOptimalScale(frame: FrameNode, screenDimensions: {
     width: number;
     height: number;
 }): number;
-declare function calculateScreenContentPosition(screenContent: SceneNode, model: iPhoneModel, screenDimensions: {
+declare function calculateScreenContentPosition(screenContent: SceneNode, model: DeviceModel, screenDimensions: {
     width: number;
     height: number;
 }): {
     x: number;
     y: number;
 };
-declare function createiPhoneFrameOverlay(parentFrame: FrameNode, modelKey: iPhoneModelKey, model: iPhoneModel): Promise<void>;
-declare function createFallbackFrame(parentFrame: FrameNode, modelKey: iPhoneModelKey, model: iPhoneModel): Promise<void>;
-declare function getCornerRadius(modelKey: iPhoneModelKey): number;
-declare function getScreenCornerRadius(modelKey: iPhoneModelKey): number;
-declare function addDynamicIsland(parentFrame: FrameNode, model: iPhoneModel): Promise<void>;
-declare function addNotch(parentFrame: FrameNode, model: iPhoneModel): Promise<void>;
-declare function addHomeButton(parentFrame: FrameNode, model: iPhoneModel): Promise<void>;
+declare function createDeviceFrameOverlay(parentFrame: FrameNode, modelKey: DeviceModelKey, model: DeviceModel): Promise<void>;
 //# sourceMappingURL=code.d.ts.map

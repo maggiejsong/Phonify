@@ -1,17 +1,17 @@
-# iPhone Mockup Frame - Figma Plugin
+# Device Mockup Frame - Figma Plugin
 
-A powerful Figma plugin that automatically wraps your selected frames with realistic iPhone mockup frames. Perfect for creating professional app presentations and showcasing your mobile designs.
+A powerful Figma plugin that automatically wraps your selected frames with realistic device mockup frames. Perfect for creating professional app presentations and showcasing your mobile designs on iPhone and Android devices.
 
 ## 🚀 Features
 
-- **Multiple iPhone Models**: Support for iPhone 14 Pro, iPhone 14, and iPhone SE
+- **Multiple Device Models**: Support for iPhone 14 Pro, iPhone 14, iPhone SE, and Android Medium
 - **Automatic Scaling**: Intelligently scales your design to fit within the phone's screen area
 - **Realistic Frames**: High-quality iPhone frames with accurate proportions and details
 - **Device-Specific Elements**: Includes Dynamic Island, notches, and home buttons as appropriate
 - **Smart Positioning**: Automatically positions mockups next to your original frames
 - **One-Click Operation**: Simple interface for quick mockup generation
 
-## 📱 Supported iPhone Models
+## 📱 Supported Device Models
 
 ### iPhone 14 Pro (430×932)
 - Features Dynamic Island
@@ -27,6 +27,12 @@ A powerful Figma plugin that automatically wraps your selected frames with reali
 - Features home button
 - Rounded corners with 20px radius
 - Screen insets: 64px top, 24px sides, 58px bottom
+
+### Android Medium (700×840)
+- Modern Android device design
+- Rounded corners with 52px radius
+- Screen insets: 24px top, 26px right, 23px bottom, 23px left
+- Side buttons on the right edge
 
 ## 🛠 Installation
 
@@ -47,8 +53,8 @@ A powerful Figma plugin that automatically wraps your selected frames with reali
 ## 🎯 How to Use
 
 1. **Select a Frame**: Choose any frame in your Figma file that contains your mobile design
-2. **Open Plugin**: Go to `Plugins` → `iPhone Mockup Frame`
-3. **Choose iPhone Model**: Select from iPhone 14 Pro, iPhone 14, or iPhone SE
+2. **Open Plugin**: Go to `Plugins` → `Device Mockup Frame`
+3. **Choose Device Model**: Select from iPhone 14 Pro, iPhone 14, iPhone SE, or Android Medium
 4. **Create Mockup**: Click "Create Mockup" button
 5. **Done!**: Your mockup will appear next to the original frame
 
