@@ -1,6 +1,6 @@
 {
-  "name": "iPhone Mockup Frame",
-  "id": "iphone-mockup-frame",
+  "name": "Device Mockup Frame",
+  "id": "device-mockup-frame",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",

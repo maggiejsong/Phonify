@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 
-const IPHONE_FRAMES = {
+const DEVICE_FRAMES = {
   'iphone-14-pro': {
     width: 430,
     height: 932,
@@ -25,20 +25,29 @@ const IPHONE_FRAMES = {
     cornerRadius: 20,
     screenInsets: { top: 64, right: 24, bottom: 58, left: 24 },
     homeButton: true
+  },
+  'android-medium': {
+    width: 700,
+    height: 840,
+    cornerRadius: 52,
+    screenInsets: { top: 24, right: 26, bottom: 23, left: 23 },
+    androidDevice: true
   }
 };
 
-function generateiPhoneFrameSVG(model, specs) {
+function generateDeviceFrameSVG(model, specs) {
   const screenWidth = specs.width - specs.screenInsets.left - specs.screenInsets.right;
   const screenHeight = specs.height - specs.screenInsets.top - specs.screenInsets.bottom;
   
   let svg = `<svg width="${specs.width}" height="${specs.height}" viewBox="0 0 ${specs.width} ${specs.height}" xmlns="http://www.w3.org/2000/svg">`;
   
-  // Outer frame
-  svg += `<rect width="${specs.width}" height="${specs.height}" rx="${specs.cornerRadius}" ry="${specs.cornerRadius}" fill="#1a1a1a" stroke="#333" stroke-width="2"/>`;
+  // Outer frame - different color for Android
+  const frameColor = specs.androidDevice ? '#252525' : '#1a1a1a';
+  svg += `<rect width="${specs.width}" height="${specs.height}" rx="${specs.cornerRadius}" ry="${specs.cornerRadius}" fill="${frameColor}" stroke="#333" stroke-width="2"/>`;
   
   // Screen cutout (transparent area)
-  svg += `<rect x="${specs.screenInsets.left}" y="${specs.screenInsets.top}" width="${screenWidth}" height="${screenHeight}" rx="${specs.cornerRadius - 20}" ry="${specs.cornerRadius - 20}" fill="transparent"/>`;
+  const screenRadius = specs.androidDevice ? 28 : Math.max(0, specs.cornerRadius - 20);
+  svg += `<rect x="${specs.screenInsets.left}" y="${specs.screenInsets.top}" width="${screenWidth}" height="${screenHeight}" rx="${screenRadius}" ry="${screenRadius}" fill="transparent"/>`;
   
   // Add device-specific elements
   if (specs.dynamicIsland) {
@@ -66,21 +75,28 @@ function generateiPhoneFrameSVG(model, specs) {
   }
   
   // Side buttons and details
-  // Power button
-  svg += `<rect x="0" y="${specs.height * 0.15}" width="3" height="60" rx="1.5" fill="#333"/>`;
-  // Volume buttons
-  svg += `<rect x="0" y="${specs.height * 0.25}" width="3" height="40" rx="1.5" fill="#333"/>`;
-  svg += `<rect x="0" y="${specs.height * 0.32}" width="3" height="40" rx="1.5" fill="#333"/>`;
+  if (specs.androidDevice) {
+    // Android buttons on the right side
+    svg += `<rect x="${specs.width - 3}" y="${specs.height * 0.16}" width="3" height="82" rx="1.5" fill="#333"/>`;
+    svg += `<rect x="${specs.width - 3}" y="${specs.height * 0.34}" width="3" height="110" rx="1.5" fill="#333"/>`;
+  } else {
+    // iPhone buttons on the left side
+    // Power button
+    svg += `<rect x="0" y="${specs.height * 0.15}" width="3" height="60" rx="1.5" fill="#333"/>`;
+    // Volume buttons
+    svg += `<rect x="0" y="${specs.height * 0.25}" width="3" height="40" rx="1.5" fill="#333"/>`;
+    svg += `<rect x="0" y="${specs.height * 0.32}" width="3" height="40" rx="1.5" fill="#333"/>`;
+  }
   
   svg += '</svg>';
   return svg;
 }
 
-// Generate SVG files for each iPhone model
-Object.entries(IPHONE_FRAMES).forEach(([model, specs]) => {
-  const svg = generateiPhoneFrameSVG(model, specs);
+// Generate SVG files for each device model
+Object.entries(DEVICE_FRAMES).forEach(([model, specs]) => {
+  const svg = generateDeviceFrameSVG(model, specs);
   fs.writeFileSync(`/workspace/assets/${model}-frame.svg`, svg);
   console.log(`Generated ${model}-frame.svg`);
 });
 
-console.log('iPhone frame assets generated successfully!');
+console.log('Device frame assets generated successfully!');
